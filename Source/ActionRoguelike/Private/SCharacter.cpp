@@ -3,8 +3,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "SInteractionComponent.h"
 
 ASCharacter::ASCharacter()
 {
@@ -15,7 +14,9 @@ ASCharacter::ASCharacter()
 
 	CameraCmp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraCmp"));
 	CameraCmp->SetupAttachment(SpringArmCmp);
-	
+
+	InteractionCmp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionCmp"));
+
 	bUseControllerRotationYaw = false;
 	SpringArmCmp->bUsePawnControlRotation = true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -29,9 +30,11 @@ void ASCharacter::Tick(float DeltaTime)
 	LineStart += GetActorRightVector() * 100.0f;
 	FVector ActorDirection_LineEnd = LineStart + (GetActorForwardVector() * 100.0f);
 	FVector ControlDirection_LineEnd = LineStart + (GetControlRotation().Vector() * 100.0f);
-	
-	DrawDebugDirectionalArrow(GetWorld(), LineStart, ActorDirection_LineEnd, 100.0f, FColor::Yellow, false, 0.0f, 0, 5.0f);
-	DrawDebugDirectionalArrow(GetWorld(), LineStart, ControlDirection_LineEnd, 100.0, FColor::Green, false, 0.0f, 0, 5.0f);
+
+	DrawDebugDirectionalArrow(GetWorld(), LineStart, ActorDirection_LineEnd, 100.0f, FColor::Yellow, false, 0.0f, 0,
+	                          5.0f);
+	DrawDebugDirectionalArrow(GetWorld(), LineStart, ControlDirection_LineEnd, 100.0, FColor::Green, false, 0.0f, 0,
+	                          5.0f);
 }
 
 void ASCharacter::BeginPlay()
@@ -72,6 +75,14 @@ void ASCharacter::PrimaryAttack()
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParams);
 }
 
+void ASCharacter::PrimaryInteract()
+{
+	if (InteractionCmp)
+	{
+		InteractionCmp->PrimaryInteract();
+	}
+}
+
 void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -86,5 +97,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 		PlayerInputComponent->BindAction(TEXT("PrimaryAttack"), EInputEvent::IE_Pressed, this,
 		                                 &ASCharacter::PrimaryAttack);
+		PlayerInputComponent->BindAction(TEXT("PrimaryInteract"), EInputEvent::IE_Pressed, this,
+		                                 &ASCharacter::PrimaryInteract);
 	}
 }
