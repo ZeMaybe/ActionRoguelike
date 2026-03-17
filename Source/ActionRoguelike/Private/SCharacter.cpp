@@ -69,7 +69,19 @@ void ASCharacter::MoveRight(float AxisValue)
 
 void ASCharacter::PrimaryAttack()
 {
-	FTransform SpawnTransform = FTransform(GetControlRotation(), GetMesh()->GetSocketLocation(TEXT("Muzzle_01")));
+	PlayAnimMontage(AttackAnim);
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+}
+
+void ASCharacter::PrimaryAttack_TimeElapsed()
+{
+	// FTransform SpawnTransform = FTransform(GetControlRotation(),
+	// 									   GetMesh()->GetSocketLocation(TEXT("Muzzle_01")) + GetMesh()->
+	// 									   GetSocketRotation(TEXT("Muzzle_01")).Vector() * 10);
+	FTransform SpawnTransform = FTransform(GetControlRotation(),
+	                                       GetMesh()->GetSocketLocation(TEXT("Muzzle_01")));
+
+
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParams);

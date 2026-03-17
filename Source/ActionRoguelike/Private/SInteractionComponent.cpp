@@ -39,7 +39,7 @@ void USInteractionComponent::PrimaryInteract() const
 				break;
 			}
 		}
-		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f,32, LineColor, false, 2.0f);
+		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 32.0f,32, LineColor, false, 2.0f);
 	}
 	DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 10.0f, 0, 2.0f);
 }

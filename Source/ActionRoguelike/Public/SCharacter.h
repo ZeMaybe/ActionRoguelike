@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
+class UAnimMontage;
 class USpringArmComponent;
 class UCameraComponent;
 class USInteractionComponent;
@@ -24,6 +25,7 @@ protected:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 	void PrimaryAttack() ;
+	void PrimaryAttack_TimeElapsed();
 	void PrimaryInteract() ;
 
 	UPROPERTY(VisibleAnywhere)
@@ -35,6 +37,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USInteractionComponent> InteractionCmp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,Category="Attack")
 	TSubclassOf<AActor> ProjectileClass;
+	
+	UPROPERTY(EditAnywhere,Category="Attack")
+	TObjectPtr<UAnimMontage> AttackAnim;
+	
+	FTimerHandle TimerHandle_PrimaryAttack;
 };
