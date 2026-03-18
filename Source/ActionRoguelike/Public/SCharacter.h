@@ -20,13 +20,12 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
-	virtual void BeginPlay() override;
-
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 	void PrimaryAttack() ;
 	void PrimaryAttack_TimeElapsed();
 	void PrimaryInteract() ;
+	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> SpringArmCmp;
@@ -42,6 +41,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere,Category="Attack")
 	TObjectPtr<UAnimMontage> AttackAnim;
+	
+	UPROPERTY(EditDefaultsOnly,Category="Attack")
+	float AttackAnimDelay;
 	
 	FTimerHandle TimerHandle_PrimaryAttack;
 };

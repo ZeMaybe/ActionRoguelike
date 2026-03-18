@@ -20,6 +20,8 @@ ASCharacter::ASCharacter()
 	bUseControllerRotationYaw = false;
 	SpringArmCmp->bUsePawnControlRotation = true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	AttackAnimDelay = 0.2f;
 }
 
 void ASCharacter::Tick(float DeltaTime)
@@ -35,11 +37,6 @@ void ASCharacter::Tick(float DeltaTime)
 	                          5.0f);
 	DrawDebugDirectionalArrow(GetWorld(), LineStart, ControlDirection_LineEnd, 100.0, FColor::Green, false, 0.0f, 0,
 	                          5.0f);
-}
-
-void ASCharacter::BeginPlay()
-{
-	Super::BeginPlay();
 }
 
 void ASCharacter::MoveForward(float AxisValue)
@@ -70,21 +67,13 @@ void ASCharacter::MoveRight(float AxisValue)
 void ASCharacter::PrimaryAttack()
 {
 	PlayAnimMontage(AttackAnim);
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed,
+	                                AttackAnimDelay);
 }
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-	if (ensure(ProjectileClass))
-	{
-		FTransform SpawnTransform = FTransform(GetControlRotation(),
-		                                       GetMesh()->GetSocketLocation(TEXT("Muzzle_01")));
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParams);
-	}
+	SpawnProjectile(ProjectileClass);
 }
 
 void ASCharacter::PrimaryInteract()
@@ -92,6 +81,44 @@ void ASCharacter::PrimaryInteract()
 	if (InteractionCmp)
 	{
 		InteractionCmp->PrimaryInteract();
+	}
+}
+
+void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
+{
+	if (ensure(ClassToSpawn))
+	{
+		auto HandLocation = GetMesh()->GetSocketLocation(TEXT("Muzzle_01"));
+
+		FHitResult Hit;
+		auto TraceStart = CameraCmp->GetComponentLocation();
+		auto TraceEnd = TraceStart + (GetControlRotation().Vector() * 5000.0f);
+
+		FCollisionObjectQueryParams ObjParams;
+		ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+		ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjParams.AddObjectTypesToQuery(ECC_Pawn);
+
+		FCollisionShape Shape;
+		Shape.SetSphere(20.0f);
+
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+
+		FRotator ProjRotation;
+		if (GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd,
+		                                        FQuat::Identity, ObjParams, Shape, QueryParams))
+		{
+			TraceEnd = Hit.ImpactPoint;
+		}
+		ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
+
+		FTransform SpawnTransform = FTransform(ProjRotation, HandLocation);
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
+
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParams);
 	}
 }
 
