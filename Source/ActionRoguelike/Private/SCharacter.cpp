@@ -75,18 +75,16 @@ void ASCharacter::PrimaryAttack()
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-	// FTransform SpawnTransform = FTransform(GetControlRotation(),
-	// 									   GetMesh()->GetSocketLocation(TEXT("Muzzle_01")) + GetMesh()->
-	// 									   GetSocketRotation(TEXT("Muzzle_01")).Vector() * 10);
-	FTransform SpawnTransform = FTransform(GetControlRotation(),
-	                                       GetMesh()->GetSocketLocation(TEXT("Muzzle_01")));
+	if (ensure(ProjectileClass))
+	{
+		FTransform SpawnTransform = FTransform(GetControlRotation(),
+		                                       GetMesh()->GetSocketLocation(TEXT("Muzzle_01")));
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
 
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
-	
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParams);
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParams);
+	}
 }
 
 void ASCharacter::PrimaryInteract()
