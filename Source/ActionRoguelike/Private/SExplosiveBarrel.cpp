@@ -16,6 +16,7 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	RadialForceCmp->ImpulseStrength = 2000.0f;
 	RadialForceCmp->bImpulseVelChange = true;
 	RadialForceCmp->bAutoActivate = false;
+	RadialForceCmp->AddCollisionChannelToAffect(ECC_WorldDynamic);
 }
 
 void ASExplosiveBarrel::BeginPlay()

@@ -7,6 +7,9 @@
 #include "SGameplayInterface.h"
 #include "SItemChest.generated.h"
 
+class UStaticMeshComponent;
+class UParticleSystemComponent;
+
 UCLASS()
 class ACTIONROGUELIKE_API ASItemChest : public AActor,public ISGameplayInterface
 {
@@ -23,8 +26,14 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> BaseMesh;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> LidMesh;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TObjectPtr<UStaticMeshComponent> PileMesh;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TObjectPtr<UParticleSystemComponent> ParticleSystem;
 	
 	UPROPERTY(EditAnywhere)
 	float TargetPitch;

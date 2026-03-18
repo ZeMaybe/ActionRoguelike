@@ -1,5 +1,7 @@
 #include "SItemChest.h"
 
+#include "Particles/ParticleSystemComponent.h"
+
 ASItemChest::ASItemChest()
 {
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
@@ -7,6 +9,13 @@ ASItemChest::ASItemChest()
 
 	LidMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LidMesh"));
 	LidMesh->SetupAttachment(RootComponent);
+	
+	PileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PileMesh"));
+	PileMesh->SetupAttachment(RootComponent);
+	
+	ParticleSystem = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ParticleSystem"));
+	ParticleSystem->bAutoActivate = false;
+	ParticleSystem->SetupAttachment(PileMesh);
 
 	TargetPitch = 110.0f;
 }

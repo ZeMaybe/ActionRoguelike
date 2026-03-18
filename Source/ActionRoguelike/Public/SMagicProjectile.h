@@ -20,7 +20,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TObjectPtr<USphereComponent> SphereCmp;
 	
 	UPROPERTY(VisibleAnywhere)
