@@ -1,26 +1,29 @@
-
 #include "SMagicProjectile.h"
-
 #include "Components/SphereComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "Particles/ParticleSystemComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ASMagicProjectile::ASMagicProjectile()
 {
-	SphereCmp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCmp"));
-	SphereCmp->SetCollisionProfileName(TEXT("Projectile"));
-	RootComponent = SphereCmp;
-	
-	EffectCmp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("EffectCmp"));
-	EffectCmp->SetupAttachment(RootComponent);
-	
-	MovementCmp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("MovementCmp"));
-	MovementCmp->InitialSpeed = 1000.0f;
-	MovementCmp->bRotationFollowsVelocity = true;
-	MovementCmp->bInitialVelocityInLocalSpace = true;
+	SphereCmp->OnComponentHit.AddDynamic(this, &ASMagicProjectile::OnActorHit);
 }
 
 void ASMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+	auto Tmp = GetInstigator();
+	if (IsValid(Tmp))
+	{
+		SphereCmp->IgnoreActorWhenMoving(Tmp, true);
+	}
+}
+
+void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (IsValid(this) && OtherActor != GetInstigator())
+	{
+		UKismetSystemLibrary::DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 32, 32, FColor::Red, 0.1, 1.0);
+		if (ensure(HitEffect))
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.ImpactPoint, FRotator::ZeroRotator, true);
+		Destroy();
+	}
 }

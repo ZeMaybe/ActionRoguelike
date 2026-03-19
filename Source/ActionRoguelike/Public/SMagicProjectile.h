@@ -3,29 +3,20 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "SProjectileBase.h"
 #include "SMagicProjectile.generated.h"
 
-class USphereComponent;
-class UProjectileMovementComponent;
-class UParticleSystemComponent;
-
 UCLASS()
-class ACTIONROGUELIKE_API ASMagicProjectile : public AActor
+class ACTIONROGUELIKE_API ASMagicProjectile : public ASProjectileBase 
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ASMagicProjectile();
 
 protected:
 	virtual void BeginPlay() override;
-	
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	TObjectPtr<USphereComponent> SphereCmp;
-	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UProjectileMovementComponent> MovementCmp;
-	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UParticleSystemComponent> EffectCmp;
+
+	UFUNCTION()
+	void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };
