@@ -17,14 +17,13 @@ public:
 	ASExplosiveBarrel();
 
 protected:
-	virtual void BeginPlay() override;
-	virtual void PostInitializeComponents() override;
-
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> MeshCmp;
 	
 	UPROPERTY(blueprintReadOnly)
 	TObjectPtr<URadialForceComponent> RadialForceCmp;
+	
+	virtual void PostInitializeComponents() override;
 	
 	UFUNCTION()
 	void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

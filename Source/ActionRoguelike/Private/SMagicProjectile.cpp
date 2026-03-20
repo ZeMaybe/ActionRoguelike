@@ -1,4 +1,6 @@
 #include "SMagicProjectile.h"
+
+#include "SAttributeComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -24,6 +26,16 @@ void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* Ot
 		UKismetSystemLibrary::DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 32, 32, FColor::Red, 0.1, 1.0);
 		if (ensure(HitEffect))
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.ImpactPoint, FRotator::ZeroRotator, true);
+
+		if (OtherActor)
+		{
+			USAttributeComponent* Cmp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+			if (Cmp)
+			{
+				Cmp->ApplyHealthChange(-20.0f);
+			}
+		}
+
 		Destroy();
 	}
 }

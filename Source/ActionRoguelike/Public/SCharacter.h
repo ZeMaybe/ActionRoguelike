@@ -8,6 +8,7 @@ class UAnimMontage;
 class USpringArmComponent;
 class UCameraComponent;
 class USInteractionComponent;
+class USAttributeComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -22,9 +23,9 @@ public:
 protected:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
-	void PrimaryAttack() ;
+	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
-	void PrimaryInteract() ;
+	void PrimaryInteract();
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
 	UPROPERTY(VisibleAnywhere)
@@ -36,14 +37,17 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USInteractionComponent> InteractionCmp;
 
-	UPROPERTY(EditAnywhere,Category="Attack")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	TObjectPtr<USAttributeComponent> AttributeCmp;
+
+	UPROPERTY(EditAnywhere, Category="Attack")
 	TSubclassOf<AActor> ProjectileClass;
-	
-	UPROPERTY(EditAnywhere,Category="Attack")
+
+	UPROPERTY(EditAnywhere, Category="Attack")
 	TObjectPtr<UAnimMontage> AttackAnim;
-	
-	UPROPERTY(EditDefaultsOnly,Category="Attack")
+
+	UPROPERTY(EditDefaultsOnly, Category="Attack")
 	float AttackAnimDelay;
-	
+
 	FTimerHandle TimerHandle_PrimaryAttack;
 };

@@ -1,5 +1,6 @@
 #include "SCharacter.h"
 
+#include "SAttributeComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -16,6 +17,7 @@ ASCharacter::ASCharacter()
 	CameraCmp->SetupAttachment(SpringArmCmp);
 
 	InteractionCmp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionCmp"));
+	AttributeCmp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeCmp"));
 
 	bUseControllerRotationYaw = false;
 	SpringArmCmp->bUsePawnControlRotation = true;
