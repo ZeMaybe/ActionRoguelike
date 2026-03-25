@@ -10,7 +10,7 @@ class USphereComponent;
 class UParticleSystemComponent;
 class UProjectileMovementComponent;
 
-UCLASS()
+UCLASS(Abstract)
 class ACTIONROGUELIKE_API ASProjectileBase : public AActor
 {
 	GENERATED_BODY()
@@ -19,7 +19,11 @@ public:
 	ASProjectileBase();
 
 protected:
+	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
+	void Explode();
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USphereComponent> SphereCmp;
 

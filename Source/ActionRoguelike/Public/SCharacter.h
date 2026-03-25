@@ -23,9 +23,20 @@ public:
 protected:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
+
+	FTimerHandle TimerHandle_PrimaryAttack;
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
-	void PrimaryInteract();
+	
+	FTimerHandle TimerHandle_BlackHole;
+	void BlackHoleAttack();
+	void BlackHoleAttack_TimeElapsed();
+
+	FTimerHandle TimerHandle_Dash;
+	void Dash();
+	void Dash_TimeElapsed();
+
+	void PrimaryInteract() ;
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
 	UPROPERTY(VisibleAnywhere)
@@ -44,10 +55,14 @@ protected:
 	TSubclassOf<AActor> ProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category="Attack")
+	TSubclassOf<AActor> DashProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category="Attack")
+	TSubclassOf<AActor> BlackHoleProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category="Attack")
 	TObjectPtr<UAnimMontage> AttackAnim;
 
 	UPROPERTY(EditDefaultsOnly, Category="Attack")
 	float AttackAnimDelay;
-
-	FTimerHandle TimerHandle_PrimaryAttack;
 };

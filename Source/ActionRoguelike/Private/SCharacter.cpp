@@ -69,8 +69,7 @@ void ASCharacter::MoveRight(float AxisValue)
 void ASCharacter::PrimaryAttack()
 {
 	PlayAnimMontage(AttackAnim);
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed,
-	                                AttackAnimDelay);
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);
 }
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
@@ -78,7 +77,29 @@ void ASCharacter::PrimaryAttack_TimeElapsed()
 	SpawnProjectile(ProjectileClass);
 }
 
-void ASCharacter::PrimaryInteract()
+void ASCharacter::BlackHoleAttack()
+{
+	PlayAnimMontage(AttackAnim);
+	GetWorldTimerManager().SetTimer(TimerHandle_BlackHole, this, &ASCharacter::BlackHoleAttack_TimeElapsed, AttackAnimDelay);
+}
+
+void ASCharacter::BlackHoleAttack_TimeElapsed()
+{
+	SpawnProjectile(BlackHoleProjectileClass);
+}
+
+void ASCharacter::Dash()
+{
+	PlayAnimMontage(AttackAnim);
+	GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &ASCharacter::Dash_TimeElapsed, AttackAnimDelay);
+}
+
+void ASCharacter::Dash_TimeElapsed()
+{
+	SpawnProjectile(DashProjectileClass);
+}
+
+void ASCharacter::PrimaryInteract() 
 {
 	if (InteractionCmp)
 	{
@@ -120,7 +141,7 @@ void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParams.Instigator = this;
 
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParams);
+		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTransform, SpawnParams);
 	}
 }
 
@@ -136,9 +157,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		PlayerInputComponent->BindAxis(TEXT("Turn"), this, &APawn::AddControllerYawInput);
 		PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &APawn::AddControllerPitchInput);
 
-		PlayerInputComponent->BindAction(TEXT("PrimaryAttack"), EInputEvent::IE_Pressed, this,
-		                                 &ASCharacter::PrimaryAttack);
-		PlayerInputComponent->BindAction(TEXT("PrimaryInteract"), EInputEvent::IE_Pressed, this,
-		                                 &ASCharacter::PrimaryInteract);
+		PlayerInputComponent->BindAction(TEXT("PrimaryAttack"), EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryAttack);
+		PlayerInputComponent->BindAction(TEXT("SecondaryAttack"), EInputEvent::IE_Pressed, this, &ASCharacter::BlackHoleAttack);
+		PlayerInputComponent->BindAction(TEXT("Dash"), EInputEvent::IE_Pressed, this, &ASCharacter::Dash);
+		PlayerInputComponent->BindAction(TEXT("PrimaryInteract"), EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryInteract);
 	}
 }

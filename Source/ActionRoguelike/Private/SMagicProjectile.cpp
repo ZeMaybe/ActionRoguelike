@@ -9,16 +9,6 @@ ASMagicProjectile::ASMagicProjectile()
 	SphereCmp->OnComponentHit.AddDynamic(this, &ASMagicProjectile::OnActorHit);
 }
 
-void ASMagicProjectile::BeginPlay()
-{
-	Super::BeginPlay();
-	auto Tmp = GetInstigator();
-	if (IsValid(Tmp))
-	{
-		SphereCmp->IgnoreActorWhenMoving(Tmp, true);
-	}
-}
-
 void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (IsValid(this) && OtherActor != GetInstigator())
