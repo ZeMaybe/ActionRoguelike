@@ -99,7 +99,7 @@ void ASCharacter::Dash_TimeElapsed()
 	SpawnProjectile(DashProjectileClass);
 }
 
-void ASCharacter::PrimaryInteract() 
+void ASCharacter::PrimaryInteract()
 {
 	if (InteractionCmp)
 	{
@@ -129,8 +129,7 @@ void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 		QueryParams.AddIgnoredActor(this);
 
 		FRotator ProjRotation;
-		if (GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd,
-		                                        FQuat::Identity, ObjParams, Shape, QueryParams))
+		if (GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, ObjParams, Shape, QueryParams))
 		{
 			TraceEnd = Hit.ImpactPoint;
 		}
@@ -161,5 +160,20 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		PlayerInputComponent->BindAction(TEXT("SecondaryAttack"), EInputEvent::IE_Pressed, this, &ASCharacter::BlackHoleAttack);
 		PlayerInputComponent->BindAction(TEXT("Dash"), EInputEvent::IE_Pressed, this, &ASCharacter::Dash);
 		PlayerInputComponent->BindAction(TEXT("PrimaryInteract"), EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryInteract);
+	}
+}
+
+void ASCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	AttributeCmp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+}
+
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+	if (NewHealth <= 0.0f && Delta < 0.0f)
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		DisableInput(PC);
 	}
 }

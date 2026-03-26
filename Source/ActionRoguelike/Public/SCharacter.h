@@ -19,8 +19,12 @@ public:
 	ASCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void PostInitializeComponents() override;
 
 protected:
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 
