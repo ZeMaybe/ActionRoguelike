@@ -21,6 +21,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool IsAlive()const;
 	
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	bool IsFullHealth()const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	float GetMaxHealth()const;
+	
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChanged OnHealthChanged;
 	
@@ -34,4 +40,7 @@ protected:
 	// BlueprintReadWrite - read-write access in Blueprints
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
 	float Health;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	float MaxHealth;
 };
