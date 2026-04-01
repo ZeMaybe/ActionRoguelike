@@ -7,7 +7,7 @@ ASDashProjectile::ASDashProjectile()
 {
 	DetonateDelay = 0.2f;
 	TeleportDelay = 0.2f;
-	 MovementCmp->InitialSpeed = 6000.0f;
+	MovementCmp->InitialSpeed = 6000.0f;
 }
 
 void ASDashProjectile::BeginPlay()
@@ -20,7 +20,7 @@ void ASDashProjectile::Explode_Implementation()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_DelayedDetonate);
 
-	UGameplayStatics::SpawnEmitterAtLocation(this, HitEffect, GetActorLocation(), GetActorRotation());
+	UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVfx, GetActorLocation(), GetActorRotation());
 
 	EffectCmp->DeactivateSystem();
 	MovementCmp->StopMovementImmediately();
@@ -29,7 +29,7 @@ void ASDashProjectile::Explode_Implementation()
 	GetWorldTimerManager().SetTimer(TimerHandle_DelayedTeleport, this, &ASDashProjectile::TeleportInstigator, TeleportDelay);
 }
 
-void ASDashProjectile::TeleportInstigator() 
+void ASDashProjectile::TeleportInstigator()
 {
 	if (AActor* ActorToTeleport = GetInstigator(); ensure(ActorToTeleport))
 	{

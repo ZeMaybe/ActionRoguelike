@@ -41,6 +41,8 @@ protected:
 	void Dash_TimeElapsed();
 
 	void PrimaryInteract() ;
+	
+	void StartAttackEffects();
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
 	UPROPERTY(VisibleAnywhere)
@@ -67,6 +69,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Attack")
 	TObjectPtr<UAnimMontage> AttackAnim;
 
+	UPROPERTY(EditAnywhere, Category="Attack")
+	TObjectPtr<UParticleSystem> CastingEffect;
+	
 	UPROPERTY(EditDefaultsOnly, Category="Attack")
 	float AttackAnimDelay;
+	
+	UPROPERTY(VisibleAnywhere,Category="Effects")
+	FName HandSocketName;
+	
+	UPROPERTY(VisibleAnywhere,Category="Effects")
+	FName TimeToHitParamName;
 };

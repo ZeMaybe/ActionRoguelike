@@ -5,12 +5,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "SInteractionComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ASCharacter::ASCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmCmp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmCmp"));
+	SpringArmCmp->bUsePawnControlRotation = true;
 	SpringArmCmp->SetupAttachment(RootComponent);
 
 	CameraCmp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraCmp"));
@@ -19,11 +21,12 @@ ASCharacter::ASCharacter()
 	InteractionCmp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionCmp"));
 	AttributeCmp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeCmp"));
 
-	bUseControllerRotationYaw = false;
-	SpringArmCmp->bUsePawnControlRotation = true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	bUseControllerRotationYaw = false;
 
 	AttackAnimDelay = 0.2f;
+	HandSocketName = "Muzzle_01";
+	TimeToHitParamName = "TimeToHit";
 }
 
 void ASCharacter::Tick(float DeltaTime)
@@ -68,7 +71,7 @@ void ASCharacter::MoveRight(float AxisValue)
 
 void ASCharacter::PrimaryAttack()
 {
-	PlayAnimMontage(AttackAnim);
+	StartAttackEffects();
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);
 }
 
@@ -79,7 +82,7 @@ void ASCharacter::PrimaryAttack_TimeElapsed()
 
 void ASCharacter::BlackHoleAttack()
 {
-	PlayAnimMontage(AttackAnim);
+	StartAttackEffects();
 	GetWorldTimerManager().SetTimer(TimerHandle_BlackHole, this, &ASCharacter::BlackHoleAttack_TimeElapsed, AttackAnimDelay);
 }
 
@@ -90,7 +93,7 @@ void ASCharacter::BlackHoleAttack_TimeElapsed()
 
 void ASCharacter::Dash()
 {
-	PlayAnimMontage(AttackAnim);
+	StartAttackEffects();
 	GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &ASCharacter::Dash_TimeElapsed, AttackAnimDelay);
 }
 
@@ -107,11 +110,20 @@ void ASCharacter::PrimaryInteract()
 	}
 }
 
+void ASCharacter::StartAttackEffects()
+{
+	PlayAnimMontage(AttackAnim);
+	UGameplayStatics::SpawnEmitterAttached(CastingEffect,
+	                                       GetMesh(), HandSocketName,
+	                                       FVector::ZeroVector, FRotator::ZeroRotator,
+	                                       EAttachLocation::SnapToTarget, true);
+}
+
 void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 {
 	if (ensure(ClassToSpawn))
 	{
-		auto HandLocation = GetMesh()->GetSocketLocation(TEXT("Muzzle_01"));
+		auto HandLocation = GetMesh()->GetSocketLocation(HandSocketName);
 
 		FHitResult Hit;
 		auto TraceStart = CameraCmp->GetComponentLocation();
@@ -171,6 +183,11 @@ void ASCharacter::PostInitializeComponents()
 
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
+	// if (Delta < 0.0f)
+	// {
+	// 	GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+	// }
+
 	if (NewHealth <= 0.0f && Delta < 0.0f)
 	{
 		APlayerController* PC = Cast<APlayerController>(GetController());

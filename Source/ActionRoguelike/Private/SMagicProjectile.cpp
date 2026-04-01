@@ -14,10 +14,9 @@ void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* Ot
 {
 	if (IsValid(this) && OtherActor != GetInstigator())
 	{
-		UKismetSystemLibrary::DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 32, 32, FColor::Red, 0.1, 1.0);
-		if (ensure(HitEffect))
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.ImpactPoint, FRotator::ZeroRotator, true);
+		Explode();
 
+		UKismetSystemLibrary::DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 32, 32, FColor::Red, 0.1, 1.0);
 		if (OtherActor)
 		{
 			USAttributeComponent* Cmp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
@@ -26,7 +25,6 @@ void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* Ot
 				Cmp->ApplyHealthChange(DamageAmount);
 			}
 		}
-
 		Destroy();
 	}
 }
