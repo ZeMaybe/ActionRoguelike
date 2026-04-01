@@ -183,10 +183,10 @@ void ASCharacter::PostInitializeComponents()
 
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
-	// if (Delta < 0.0f)
-	// {
-	// 	GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
-	// }
+	if (Delta < 0.0f)
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+	}
 
 	if (NewHealth <= 0.0f && Delta < 0.0f)
 	{
