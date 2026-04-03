@@ -27,8 +27,8 @@ ASProjectileBase::ASProjectileBase()
 	MovementCmp->InitialSpeed = 8000.0f;
 	MovementCmp->ProjectileGravityScale = 0.0f;
 
-	ImpactShakeInnerRadius = 250.0f;
-	ImpactShakeOuterRadius = 2500.0f;
+	ImpactShakeInnerRadius = 0.0f;
+	ImpactShakeOuterRadius = 1500.0f;
 }
 
 void ASProjectileBase::BeginPlay()
