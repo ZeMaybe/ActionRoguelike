@@ -13,10 +13,9 @@ void ASPowerUp_HealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	if (!ensure(InstigatorPawn))
 		return;
 
-	auto AttributeComp = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
-	if (ensure(AttributeComp))
+	if (auto Cmp = USAttributeComponent::GetAttributes(InstigatorPawn))
 	{
-		if (AttributeComp->ApplyHealthChange(AttributeComp->GetMaxHealth()))
+		if (Cmp->ApplyHealthChange(this,Cmp->GetMaxHealth()))
 		{
 			HideAndCooldownPowerUp();
 		}

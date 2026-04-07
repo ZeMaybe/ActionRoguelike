@@ -7,7 +7,7 @@
 ASMagicProjectile::ASMagicProjectile()
 {
 	SphereCmp->OnComponentHit.AddDynamic(this, &ASMagicProjectile::OnActorHit);
-	DamageAmount = -20.0f;
+	DamageAmount = -50.0f;
 }
 
 void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -19,10 +19,9 @@ void ASMagicProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* Ot
 		UKismetSystemLibrary::DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 32, 32, FColor::Red, 0.1, 1.0);
 		if (OtherActor)
 		{
-			USAttributeComponent* Cmp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
-			if (Cmp)
+			if (auto Cmp = USAttributeComponent::GetAttributes(OtherActor))
 			{
-				Cmp->ApplyHealthChange(DamageAmount);
+				Cmp->ApplyHealthChange(GetInstigator(), DamageAmount);
 			}
 		}
 		Destroy();

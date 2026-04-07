@@ -39,9 +39,9 @@ void ASExplosiveBarrel::OnActorHit(UPrimitiveComponent* HitComponent, AActor* Ot
 
 	if (OtherActor)
 	{
-		if (auto Cmp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass())))
+		if (auto Cmp = USAttributeComponent::GetAttributes(OtherActor))
 		{
-			Cmp->ApplyHealthChange(-10.10f);
+			Cmp->ApplyHealthChange(this,-10.10f);
 		}
 	}
 

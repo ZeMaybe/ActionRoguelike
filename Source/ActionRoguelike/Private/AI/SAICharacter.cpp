@@ -1,6 +1,7 @@
 #include "AI/SAICharacter.h"
 
 #include "AIController.h"
+#include "BrainComponent.h"
 #include "SAttributeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/PawnSensingComponent.h"
@@ -9,20 +10,51 @@ ASAICharacter::ASAICharacter()
 {
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComponent"));
 	AttributeCmp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeCmp"));
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	TimeToHitParamName = "TimeToHit";
 }
 
 void ASAICharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &ASAICharacter::OnPawnSeen);
+	AttributeCmp->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnHealthChanged);
 }
 
 void ASAICharacter::OnPawnSeen(APawn* Pawn)
 {
-	auto MyController = Cast<AAIController>(GetController());
-	if (ensureMsgf(MyController, TEXT("SAICharacter %s has no AIController, cannot set TargetActor in Blackboard."), *GetName()))
+	SetTargetActor(Pawn);
+	DrawDebugString(GetWorld(), Pawn->GetActorLocation(), FString::Printf(TEXT("The player %s is seen!"), *Pawn->GetName()), nullptr, FColor::Red, 2.f, true);
+}
+
+void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+	if (Delta < 0.0f)
 	{
-		MyController->GetBlackboardComponent()->SetValueAsObject(TEXT("TargetActor"), Pawn);
-		DrawDebugString(GetWorld(),Pawn->GetActorLocation(),FString::Printf(TEXT("The player %s is seen!"),*Pawn->GetName()),nullptr,FColor::Red,2.f,true);
+		if (InstigatorActor != this)
+			SetTargetActor(InstigatorActor);
+		
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+		
+		if (NewHealth <= 0.0f)
+		{
+			AAIController* AIC = Cast<AAIController>(GetController());
+			if (AIC)
+			{
+				AIC->GetBrainComponent()->StopLogic("Killed");
+			}
+			GetMesh()->SetAllBodiesSimulatePhysics(true);
+			GetMesh()->SetCollisionProfileName("Ragdoll");
+			SetLifeSpan(10.0f);
+		}
 	}
 }
+
+void ASAICharacter::SetTargetActor(AActor* NewTarget) const
+{
+	if (const auto AiController = Cast<AAIController>(GetController()))
+	{
+		AiController->GetBlackboardComponent()->SetValueAsObject(TEXT("TargetActor"), NewTarget);
+	}
+}
+

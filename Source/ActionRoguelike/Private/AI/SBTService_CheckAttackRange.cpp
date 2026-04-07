@@ -14,7 +14,7 @@ void USBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, u
 		auto MyPawn = MyController->GetPawn();
 		auto TargetActor = Cast<AActor>(BlackboardCmp->GetValueAsObject(TEXT("TargetActor")));
 
-		if (ensure(MyPawn) && ensure(TargetActor))
+		if (ensure(MyPawn) && TargetActor)
 		{
 			float Distance = FVector::Distance(TargetActor->GetActorLocation(), MyPawn->GetActorLocation());
 			auto bWithinRange = Distance < BlackboardCmp->GetValueAsFloat(RangeAmountKey.SelectedKeyName);

@@ -21,8 +21,6 @@ public:
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
 protected:
-	virtual void BeginPlay() override;
-	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> BaseMesh;
 	

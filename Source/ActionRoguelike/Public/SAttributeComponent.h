@@ -16,7 +16,13 @@ public:
 	USAttributeComponent();
 		
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	bool ApplyHealthChange(float Delta);
+	static USAttributeComponent* GetAttributes(AActor* FromActor);
+	
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	static bool IsActorAlive(AActor* Actor);
+	
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
 	
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool IsAlive()const;
