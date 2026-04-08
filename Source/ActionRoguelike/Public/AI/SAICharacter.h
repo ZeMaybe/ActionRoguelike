@@ -6,6 +6,7 @@
 
 class USAttributeComponent;
 class UPawnSensingComponent;
+class USWorldUserWidget;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
@@ -26,6 +27,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	TObjectPtr<USAttributeComponent> AttributeCmp;
+	
+	UPROPERTY(EditDefaultsOnly,Category="UI")
+	TSubclassOf<USWorldUserWidget> HealthWidgetClass;
+	
+	UPROPERTY(Transient)
+	TObjectPtr<USWorldUserWidget> ActiveHealthWidget;
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);

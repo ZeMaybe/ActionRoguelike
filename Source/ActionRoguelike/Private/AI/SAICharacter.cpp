@@ -3,7 +3,9 @@
 #include "AIController.h"
 #include "BrainComponent.h"
 #include "SAttributeComponent.h"
+#include "SWorldUserWidget.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "Perception/PawnSensingComponent.h"
 
 ASAICharacter::ASAICharacter()
@@ -34,6 +36,16 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 		if (InstigatorActor != this)
 			SetTargetActor(InstigatorActor);
 		
+		if(!ActiveHealthWidget)
+		{
+			ActiveHealthWidget = CreateWidget<USWorldUserWidget>(GetWorld(), HealthWidgetClass);
+			if (ActiveHealthWidget)
+			{
+				ActiveHealthWidget->AttachedActor = this;
+				ActiveHealthWidget->AddToViewport();
+			}
+		}
+		
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 		
 		if (NewHealth <= 0.0f)
@@ -57,4 +69,3 @@ void ASAICharacter::SetTargetActor(AActor* NewTarget) const
 		AiController->GetBlackboardComponent()->SetValueAsObject(TEXT("TargetActor"), NewTarget);
 	}
 }
-

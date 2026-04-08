@@ -181,6 +181,11 @@ void ASCharacter::PostInitializeComponents()
 	AttributeCmp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
+void ASCharacter::HealSelf(float Amount)
+{
+	AttributeCmp->ApplyHealthChange(this, Amount);
+}
+
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
 	if (Delta < 0.0f)
