@@ -9,193 +9,205 @@
 
 ASCharacter::ASCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = true;
 
-	SpringArmCmp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmCmp"));
-	SpringArmCmp->bUsePawnControlRotation = true;
-	SpringArmCmp->SetupAttachment(RootComponent);
+    SetGenericTeamId(0);
 
-	CameraCmp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraCmp"));
-	CameraCmp->SetupAttachment(SpringArmCmp);
+    SpringArmCmp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmCmp"));
+    SpringArmCmp->bUsePawnControlRotation = true;
+    SpringArmCmp->SetupAttachment(RootComponent);
 
-	InteractionCmp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionCmp"));
-	AttributeCmp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeCmp"));
+    CameraCmp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraCmp"));
+    CameraCmp->SetupAttachment(SpringArmCmp);
 
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	bUseControllerRotationYaw = false;
+    InteractionCmp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionCmp"));
+    AttributeCmp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeCmp"));
 
-	AttackAnimDelay = 0.2f;
-	HandSocketName = "Muzzle_01";
-	TimeToHitParamName = "TimeToHit";
+    GetCharacterMovement()->bOrientRotationToMovement = true;
+    bUseControllerRotationYaw = false;
+
+    AttackAnimDelay = 0.2f;
+    HandSocketName = "Muzzle_01";
+    TimeToHitParamName = "TimeToHit";
 }
 
 void ASCharacter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+    Super::Tick(DeltaTime);
 
-	FVector LineStart = GetActorLocation();
-	LineStart += GetActorRightVector() * 100.0f;
-	FVector ActorDirection_LineEnd = LineStart + (GetActorForwardVector() * 100.0f);
-	FVector ControlDirection_LineEnd = LineStart + (GetControlRotation().Vector() * 100.0f);
+    FVector LineStart = GetActorLocation();
+    LineStart += GetActorRightVector() * 100.0f;
+    FVector ActorDirection_LineEnd = LineStart + (GetActorForwardVector() * 100.0f);
+    FVector ControlDirection_LineEnd = LineStart + (GetControlRotation().Vector() * 100.0f);
 
-	DrawDebugDirectionalArrow(GetWorld(), LineStart, ActorDirection_LineEnd, 100.0f, FColor::Yellow, false, 0.0f, 0,
-	                          5.0f);
-	DrawDebugDirectionalArrow(GetWorld(), LineStart, ControlDirection_LineEnd, 100.0, FColor::Green, false, 0.0f, 0,
-	                          5.0f);
+    DrawDebugDirectionalArrow(GetWorld(), LineStart, ActorDirection_LineEnd, 100.0f, FColor::Yellow, false, 0.0f, 0,
+        5.0f);
+    DrawDebugDirectionalArrow(GetWorld(), LineStart, ControlDirection_LineEnd, 100.0, FColor::Green, false, 0.0f, 0,
+        5.0f);
 }
 
 void ASCharacter::MoveForward(float AxisValue)
 {
-	auto ControlRot = GetControlRotation();
-	ControlRot.Pitch = 0.f;
-	ControlRot.Roll = 0.f;
+    auto ControlRot = GetControlRotation();
+    ControlRot.Pitch = 0.f;
+    ControlRot.Roll = 0.f;
 
-	AddMovementInput(ControlRot.Vector(), AxisValue);
-	// AddMovementInput(UKismetMathLibrary::GetForwardVector(ControlRot), AxisValue);
-	// AddMovementInput(FRotationMatrix(ControlRot).GetScaledAxis(EAxis::X), AxisValue);
+    AddMovementInput(ControlRot.Vector(), AxisValue);
+    // AddMovementInput(UKismetMathLibrary::GetForwardVector(ControlRot), AxisValue);
+    // AddMovementInput(FRotationMatrix(ControlRot).GetScaledAxis(EAxis::X), AxisValue);
 }
 
 void ASCharacter::MoveRight(float AxisValue)
 {
-	auto ControlRot = GetControlRotation();
-	ControlRot.Pitch = 0.f;
-	ControlRot.Roll = 0.f;
+    auto ControlRot = GetControlRotation();
+    ControlRot.Pitch = 0.f;
+    ControlRot.Roll = 0.f;
 
-	// x : forward  (red)
-	// y : right    (green)
-	// z : up       (blue)
+    // x : forward  (red)
+    // y : right    (green)
+    // z : up       (blue)
 
-	// AddMovementInput(UKismetMathLibrary::GetRightVector(ControlRot), AxisValue);
-	AddMovementInput(FRotationMatrix(ControlRot).GetScaledAxis(EAxis::Y), AxisValue);
+    // AddMovementInput(UKismetMathLibrary::GetRightVector(ControlRot), AxisValue);
+    AddMovementInput(FRotationMatrix(ControlRot).GetScaledAxis(EAxis::Y), AxisValue);
 }
 
 void ASCharacter::PrimaryAttack()
 {
-	StartAttackEffects();
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);
+    StartAttackEffects();
+    GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);
 }
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-	SpawnProjectile(ProjectileClass);
+    SpawnProjectile(ProjectileClass);
 }
 
 void ASCharacter::BlackHoleAttack()
 {
-	StartAttackEffects();
-	GetWorldTimerManager().SetTimer(TimerHandle_BlackHole, this, &ASCharacter::BlackHoleAttack_TimeElapsed, AttackAnimDelay);
+    StartAttackEffects();
+    GetWorldTimerManager().SetTimer(TimerHandle_BlackHole, this, &ASCharacter::BlackHoleAttack_TimeElapsed, AttackAnimDelay);
 }
 
 void ASCharacter::BlackHoleAttack_TimeElapsed()
 {
-	SpawnProjectile(BlackHoleProjectileClass);
+    SpawnProjectile(BlackHoleProjectileClass);
 }
 
 void ASCharacter::Dash()
 {
-	StartAttackEffects();
-	GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &ASCharacter::Dash_TimeElapsed, AttackAnimDelay);
+    StartAttackEffects();
+    GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &ASCharacter::Dash_TimeElapsed, AttackAnimDelay);
 }
 
 void ASCharacter::Dash_TimeElapsed()
 {
-	SpawnProjectile(DashProjectileClass);
+    SpawnProjectile(DashProjectileClass);
 }
 
 void ASCharacter::PrimaryInteract()
 {
-	if (InteractionCmp)
-	{
-		InteractionCmp->PrimaryInteract();
-	}
+    if (InteractionCmp)
+    {
+        InteractionCmp->PrimaryInteract();
+    }
 }
 
 void ASCharacter::StartAttackEffects()
 {
-	PlayAnimMontage(AttackAnim);
-	UGameplayStatics::SpawnEmitterAttached(CastingEffect,
-	                                       GetMesh(), HandSocketName,
-	                                       FVector::ZeroVector, FRotator::ZeroRotator,
-	                                       EAttachLocation::SnapToTarget, true);
+    PlayAnimMontage(AttackAnim);
+    UGameplayStatics::SpawnEmitterAttached(CastingEffect,
+        GetMesh(), HandSocketName,
+        FVector::ZeroVector, FRotator::ZeroRotator,
+        EAttachLocation::SnapToTarget, true);
 }
 
 void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 {
-	if (ensure(ClassToSpawn))
-	{
-		auto HandLocation = GetMesh()->GetSocketLocation(HandSocketName);
+    if (ensure(ClassToSpawn))
+    {
+        auto HandLocation = GetMesh()->GetSocketLocation(HandSocketName);
 
-		FHitResult Hit;
-		auto TraceStart = CameraCmp->GetComponentLocation();
-		auto TraceEnd = TraceStart + (GetControlRotation().Vector() * 5000.0f);
+        FHitResult Hit;
+        auto TraceStart = CameraCmp->GetComponentLocation();
+        auto TraceEnd = TraceStart + (GetControlRotation().Vector() * 5000.0f);
 
-		FCollisionObjectQueryParams ObjParams;
-		ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		ObjParams.AddObjectTypesToQuery(ECC_Pawn);
+        FCollisionObjectQueryParams ObjParams;
+        ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+        ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
+        ObjParams.AddObjectTypesToQuery(ECC_Pawn);
 
-		FCollisionShape Shape;
-		Shape.SetSphere(20.0f);
+        FCollisionShape Shape;
+        Shape.SetSphere(20.0f);
 
-		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(this);
+        FCollisionQueryParams QueryParams;
+        QueryParams.AddIgnoredActor(this);
 
-		FRotator ProjRotation;
-		if (GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, ObjParams, Shape, QueryParams))
-		{
-			TraceEnd = Hit.ImpactPoint;
-		}
-		ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
+        FRotator ProjRotation;
+        if (GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, ObjParams, Shape, QueryParams))
+        {
+            TraceEnd = Hit.ImpactPoint;
+        }
+        ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
 
-		FTransform SpawnTransform = FTransform(ProjRotation, HandLocation);
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
+        FTransform SpawnTransform = FTransform(ProjRotation, HandLocation);
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        SpawnParams.Instigator = this;
 
-		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTransform, SpawnParams);
-	}
+        GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTransform, SpawnParams);
+    }
 }
 
 void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	if (PlayerInputComponent)
-	{
-		PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ASCharacter::MoveForward);
-		PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ASCharacter::MoveRight);
-		PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
+    if (PlayerInputComponent)
+    {
+        PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ASCharacter::MoveForward);
+        PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ASCharacter::MoveRight);
+        PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 
-		PlayerInputComponent->BindAxis(TEXT("Turn"), this, &APawn::AddControllerYawInput);
-		PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &APawn::AddControllerPitchInput);
+        PlayerInputComponent->BindAxis(TEXT("Turn"), this, &APawn::AddControllerYawInput);
+        PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &APawn::AddControllerPitchInput);
 
-		PlayerInputComponent->BindAction(TEXT("PrimaryAttack"), EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryAttack);
-		PlayerInputComponent->BindAction(TEXT("SecondaryAttack"), EInputEvent::IE_Pressed, this, &ASCharacter::BlackHoleAttack);
-		PlayerInputComponent->BindAction(TEXT("Dash"), EInputEvent::IE_Pressed, this, &ASCharacter::Dash);
-		PlayerInputComponent->BindAction(TEXT("PrimaryInteract"), EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryInteract);
-	}
+        PlayerInputComponent->BindAction(TEXT("PrimaryAttack"), EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryAttack);
+        PlayerInputComponent->BindAction(TEXT("SecondaryAttack"), EInputEvent::IE_Pressed, this, &ASCharacter::BlackHoleAttack);
+        PlayerInputComponent->BindAction(TEXT("Dash"), EInputEvent::IE_Pressed, this, &ASCharacter::Dash);
+        PlayerInputComponent->BindAction(TEXT("PrimaryInteract"), EInputEvent::IE_Pressed, this, &ASCharacter::PrimaryInteract);
+    }
 }
 
 void ASCharacter::PostInitializeComponents()
 {
-	Super::PostInitializeComponents();
-	AttributeCmp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+    Super::PostInitializeComponents();
+    AttributeCmp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
 void ASCharacter::HealSelf(float Amount)
 {
-	AttributeCmp->ApplyHealthChange(this, Amount);
+    AttributeCmp->ApplyHealthChange(this, Amount);
+}
+
+void ASCharacter::SetGenericTeamId(const FGenericTeamId& TeamID)
+{
+    TeamId = TeamID;
+}
+
+FGenericTeamId ASCharacter::GetGenericTeamId() const
+{
+    return  TeamId;
 }
 
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
-	if (Delta < 0.0f)
-	{
-		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
-	}
+    if (Delta < 0.0f)
+    {
+        GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+    }
 
-	if (NewHealth <= 0.0f && Delta < 0.0f)
-	{
-		APlayerController* PC = Cast<APlayerController>(GetController());
-		DisableInput(PC);
-	}
+    if (NewHealth <= 0.0f && Delta < 0.0f)
+    {
+        APlayerController* PC = Cast<APlayerController>(GetController());
+        DisableInput(PC);
+    }
 }

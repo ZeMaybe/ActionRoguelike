@@ -2,14 +2,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GenericTeamAgentInterface.h"
 #include "SAICharacter.generated.h"
 
 class USAttributeComponent;
-class UPawnSensingComponent;
 class USWorldUserWidget;
 
+class UAIPerceptionComponent;
+class UAISenseConfig_Sight;
+class UAISenseConfig_Hearing;
+
 UCLASS()
-class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
+class ACTIONROGUELIKE_API ASAICharacter : public ACharacter,public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -18,12 +22,25 @@ public:
 
 	virtual void PostInitializeComponents() override;
 
+    virtual void SetGenericTeamId(const FGenericTeamId& TeamID)override;
+    virtual FGenericTeamId GetGenericTeamId() const override;
+
 protected:
+
+	UPROPERTY(EditAnywhere, Category="Team")
+    FGenericTeamId TeamId{ FGenericTeamId::NoTeam };
+
 	UPROPERTY(VisibleAnywhere, Category="Effects")
 	FName TimeToHitParamName;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UPawnSensingComponent* PawnSensingComp;
+    TObjectPtr<UAIPerceptionComponent> PerceptionComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components|Perception config")
+    TObjectPtr<UAISenseConfig_Sight> SightConfig;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components|Perception config")
+    TObjectPtr<UAISenseConfig_Hearing> HearingConfig;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	TObjectPtr<USAttributeComponent> AttributeCmp;
@@ -35,7 +52,7 @@ protected:
 	TObjectPtr<USWorldUserWidget> ActiveHealthWidget;
 
 	UFUNCTION()
-	void OnPawnSeen(APawn* Pawn);
+    void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
